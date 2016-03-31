@@ -134,7 +134,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
       function line:OnUpdate()
           if sourceName == playerName or destName == playerName then
               self:SetColor(unpack(selfColor))
-          elseif self:UnitDistance("player", true) < 2.0 then
+          elseif self:UnitDistance("player", true) < width*(1.0/64) then
               self:SetColor(unpack(inColor))
           else
               self:SetColor(unpack(outColor))
