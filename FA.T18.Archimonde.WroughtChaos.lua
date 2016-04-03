@@ -3,7 +3,7 @@ local Hud = FS.Hud
 -- Database
 -------------------------------------------------------------------------------
 
-default = {
+local default = {
   overrun = 100, 
   width = 128,
   selfColor = {0, 0.78, 1.0, 0.5},
