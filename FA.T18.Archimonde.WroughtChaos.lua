@@ -1,24 +1,11 @@
-local FS = LibStub("AceAddon-3.0"):GetAddon("FS")
-if not FS then return end
-
-local Hud = FS:GetModule("Hud")
-Hud:Enable()
-
--------------------------------------------------------------------------------
--- Utils
--------------------------------------------------------------------------------
-
-function pack(...)
-  return { ... }, select("#", ...)
-end
-
+local Hud = FS.Hud
 -------------------------------------------------------------------------------
 -- Database
 -------------------------------------------------------------------------------
 
 default = {
   overrun = 100, 
-  width = 256,
+  width = 128,
   selfColor = {0, 0.78, 1.0, 0.5},
   inColor = {0.9, 0, 0.1, 0.5},
   outColor = {0, 0.8, 0.1, 0.5}
@@ -87,71 +74,53 @@ config = {
 -- Events
 -------------------------------------------------------------------------------
 
-local f = CreateFrame("Frame", nil);
-f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
-f:RegisterEvent("ENCOUNTER_START");
-f:RegisterEvent("ENCOUNTER_END");
-f:SetScript("OnEvent", function(self, event, ...)
-  self[event](self, ...)
-end)
+if f == nil then
+  f = CreateFrame("Frame", nil);
+  f:RegisterEvent("ENCOUNTER_START");
+  f:RegisterEvent("ENCOUNTER_END");
+  f:SetScript("OnEvent", function(self, event, ...)
+    self[event](self, ...)
+  end)
+end
 
 local ENCOUNTER_ID = nil
-local RAYS = {}
 
 function f:ENCOUNTER_START (encounterID, encounterName, difficultyID, raidSize)
   ENCOUNTER_ID = encounterID
+  f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 end
 
 function f:ENCOUNTER_END (encounterID, encounterName, difficultyID, raidSize, endStatus)
   ENCOUNTER_ID = nil
+  f:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED") 
 end
 
-function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, _, _, spellName, ...)
-  if spellName == "Focused Chaos" and ENCOUNTER_ID == 1799 then 
-    RAYS = RAYS or {}
-    if event == "SPELL_CAST_START" then
-      Hud:RefreshRaidPoints()
-      Hud:Show(true)
+function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, _, spell, spellName, ...)
+  if spell == 185014 and ENCOUNTER_ID == 1799 then 
+    local key = sourceGUID .. "_chaos_ray"
+    local own = UnitIsUnit("player", destName) or UnitIsUnit("player", sourceName)
+    if event == "SPELL_AURA_APPLIED" then
+      Hud:RemovePoint(key)
+      local pt = Hud:CreateShadowPoint(destName, key)
 
-    elseif event == "SPELL_AURA_APPLIED" then
-      local playerName, _ = UnitName("player")
-      local pt = Hud:CreateShadowPoint(destName)
-
-      -- Query Database
-      local width = config.width.get()
-      local overrun = config.overrun.get()
-      local selfColor = pack(config.selfColor.get())
-      local inColor = pack(config.inColor.get())
-      local outColor = pack(config.outColor.get())
- 
       function pt:Position()
-          local vx, vy = Hud:Vector(sourceName, destName, overrun)
+          local vx, vy = Hud:Vector(sourceGUID, destGUID, db.overrun)
           local x, y = self.ref:Position()
           return x + vx, y + vy
       end
-      local line = Hud:DrawLine(sourceName, pt, width)
+      local line = Hud:DrawLine(sourceGUID, pt, db.width)
       
       function line:OnUpdate()
-          if sourceName == playerName or destName == playerName then
-              self:SetColor(unpack(selfColor))
-          elseif self:UnitIsInside("player") then
-              self:SetColor(unpack(inColor))
+          if own then
+              self:SetColor(unpack(db.selfColor))
+          elseif self:UnitDistance("player") < 2 then
+              self:SetColor(unpack(db.inColor))
           else
-              self:SetColor(unpack(outColor))
+              self:SetColor(unpack(db.outColor))
           end
       end
-      RAYS[destGUID] = {["line"]=line}
     elseif event == "SPELL_AURA_REMOVED" then
-      local ray = RAYS[destGUID]
-      if ray then
-        for _,v in pairs(ray) do
-          v:Remove ()
-        end
-        RAYS[destGUID] = nil
-        if not next(RAYS) then
-          Hud:Hide()
-        end
-      end
+      Hud:RemovePoint(key)
     end
   end
 end
