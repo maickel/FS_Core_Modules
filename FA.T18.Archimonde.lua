@@ -158,7 +158,7 @@ end
 
 function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, _, spell, spellName, ...)
   
-  if ENCOUNTER_ID == 1799 then
+  if ENCOUNTER_ID == 1799 and sourceName and destName then
     local own = UnitIsUnit("player", destName) or UnitIsUnit("player", sourceName)
 
     if spell == 185014 and db.chaos_enabled then 
@@ -183,8 +183,10 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
                 self:SetColor(unpack(db.outColor))
             end
         end
+      elseif event == "SPELL_AURA_REMOVED" then
+        Hud:RemovePoint(key)
       end
-    elseif spell == 184931 and db.shackled_enabled then
+    elseif spell == 184964 and db.shackled_enabled then
       local key = sourceGUID .. "_shackled"
       if event == "SPELL_AURA_APPLIED" then
         local x, y = UnitPosition(destName)
@@ -202,10 +204,9 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
         local line = Hud:DrawLine(shackled.root, destGUID, db.shackled_width)
         line:SetColor (unpack(db.defaultColor))
         root:SetColor (unpack(db.defaultColor))
-      end
-    end
-    if event == "SPELL_AURA_REMOVED" then
+      elseif event == "SPELL_AURA_REMOVED" then
         Hud:RemovePoint(key)
+      end
     end
   end
 end
