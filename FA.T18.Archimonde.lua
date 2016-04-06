@@ -189,7 +189,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
       if event == "SPELL_AURA_APPLIED" then
         local x, y = UnitPosition(destName)
         local root = Hud:CreateStaticPoint(x, y, key)
-        local aera = Hud:DrawArea(shackled.root, 25)
+        local aera = Hud:DrawArea(root, 25)
         function aera:OnUpdate()
             if own then
                 self:SetColor(unpack(db.selfColor))
@@ -199,7 +199,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
                 self:SetColor(unpack(db.outColor))
             end
         end
-        local line = Hud:DrawLine(shackled.root, destGUID, db.shackled_width)
+        local line = Hud:DrawLine(root, destGUID, db.shackled_width)
         line:SetColor (unpack(db.defaultColor))
         root:SetColor (unpack(db.defaultColor))
       end
