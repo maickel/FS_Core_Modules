@@ -148,12 +148,12 @@ local ENCOUNTER_ID = nil
 
 function f:ENCOUNTER_START (encounterID, encounterName, difficultyID, raidSize)
   ENCOUNTER_ID = encounterID
-  f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+  self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 end
 
 function f:ENCOUNTER_END (encounterID, encounterName, difficultyID, raidSize, endStatus)
   ENCOUNTER_ID = nil
-  f:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED") 
+  self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED") 
 end
 
 function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, _, spell, spellName, ...)
