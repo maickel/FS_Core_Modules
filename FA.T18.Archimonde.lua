@@ -187,6 +187,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
     elseif spell == 184964 and db.shackled_enabled then
       local key = sourceGUID .. "_shackled"
       if event == "SPELL_AURA_APPLIED" then
+        Hud:RemovePoint(key)
         local x, y = UnitPosition(destName)
         local root = Hud:CreateStaticPoint(x, y, key)
         local aera = Hud:DrawArea(root, 25)
