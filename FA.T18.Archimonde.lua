@@ -9,6 +9,7 @@ local default = {
   chaos_enabled = true,
   overrun = 100, 
   ray_width = 128,
+  mark_enabled = true,
   selfColor = {0, 0.78, 1.0, 0.5},
   inColor = {0.9, 0, 0.1, 0.5},
   outColor = {0, 0.8, 0.1, 0.5},
@@ -44,6 +45,20 @@ config = {
         step = 64,
         get = function() return db.shackled_width end,
         set = function(_, v) db.shackled_width = v end
+      }
+    }
+  },
+  mark={
+    type = "group",
+    name = "Mark of the Legion",
+    args = {
+      enable = {
+        order = 1,
+        type = "toggle",
+        name = "Enable",
+        width = "full",
+        get = function() return db.mark_enabled end,
+        set = function(_, v) db.mark_enabled = v end
       }
     }
   },
@@ -185,7 +200,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
         end
       end
     elseif spell == 184964 and db.shackled_enabled then
-      key = sourceGUID .. "_shackled"
+      key = destGUID .. "_shackled"
       if event == "SPELL_AURA_APPLIED" then
         Hud:RemovePoint(key)
         local x, y = UnitPosition(destName)
@@ -205,6 +220,15 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
         root:SetColor (unpack(db.defaultColor))
       end
     end
+    elseif spell == 187050 and db.mark_enabled then
+      key = destGUID .. "_mark"
+      if event == "SPELL_AURA_APP
+        Hud:RemovePoint(key)
+        local duration = select(6, UnitDebuff(destName, spellName))
+        local pt = Hud:CreateShadowPoint(destGUID, key)
+        local timer = Hud:DrawTimer(pt, 10, duration)
+        timer:SetColor(unpack(db.defaultColor))
+      end
     if event == "SPELL_AURA_REMOVED" and key then
         Hud:RemovePoint(key)
     end
