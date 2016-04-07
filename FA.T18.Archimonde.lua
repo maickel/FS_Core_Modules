@@ -148,21 +148,21 @@ local ENCOUNTER_ID = nil
 
 function f:ENCOUNTER_START (encounterID, encounterName, difficultyID, raidSize)
   ENCOUNTER_ID = encounterID
-  f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+  self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 end
 
 function f:ENCOUNTER_END (encounterID, encounterName, difficultyID, raidSize, endStatus)
   ENCOUNTER_ID = nil
-  f:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED") 
+  self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED") 
 end
 
 function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, _, spell, spellName, ...)
-  
   if ENCOUNTER_ID == 1799 and sourceName and destName then
+    local key = nil
     local own = UnitIsUnit("player", destName) or UnitIsUnit("player", sourceName)
 
     if spell == 185014 and db.chaos_enabled then 
-      local key = sourceGUID .. "_chaos_ray"
+      key = sourceGUID .. "_chaos_ray"
       if event == "SPELL_AURA_APPLIED" then
         Hud:RemovePoint(key)
         local pt = Hud:CreateShadowPoint(destGUID, key)
@@ -183,15 +183,14 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
                 self:SetColor(unpack(db.outColor))
             end
         end
-      elseif event == "SPELL_AURA_REMOVED" then
-        Hud:RemovePoint(key)
       end
     elseif spell == 184964 and db.shackled_enabled then
-      local key = sourceGUID .. "_shackled"
+      key = sourceGUID .. "_shackled"
       if event == "SPELL_AURA_APPLIED" then
+        Hud:RemovePoint(key)
         local x, y = UnitPosition(destName)
         local root = Hud:CreateStaticPoint(x, y, key)
-        local aera = Hud:DrawArea(shackled.root, 25)
+        local aera = Hud:DrawArea(root, 25)
         function aera:OnUpdate()
             if own then
                 self:SetColor(unpack(db.selfColor))
@@ -201,15 +200,17 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
                 self:SetColor(unpack(db.outColor))
             end
         end
-        local line = Hud:DrawLine(shackled.root, destGUID, db.shackled_width)
+        local line = Hud:DrawLine(root, destGUID, db.shackled_width)
         line:SetColor (unpack(db.defaultColor))
         root:SetColor (unpack(db.defaultColor))
-      elseif event == "SPELL_AURA_REMOVED" then
-        Hud:RemovePoint(key)
       end
+    end
+    if event == "SPELL_AURA_REMOVED" and key then
+        Hud:RemovePoint(key)
     end
   end
 end
+
 
 function reload()
   load("main.lua", true)
