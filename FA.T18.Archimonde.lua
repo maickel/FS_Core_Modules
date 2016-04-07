@@ -222,7 +222,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
     end
     elseif spell == 187050 and db.mark_enabled then
       key = destGUID .. "_mark"
-      if event == "SPELL_AURA_APP
+      if event == "SPELL_AURA_APP then
         Hud:RemovePoint(key)
         local duration = select(6, UnitDebuff(destName, spellName))
         local pt = Hud:CreateShadowPoint(destGUID, key)
