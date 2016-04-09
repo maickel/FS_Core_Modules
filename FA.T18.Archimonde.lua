@@ -10,6 +10,8 @@ local default = {
   overrun = 100, 
   ray_width = 128,
   mark_enabled = true,
+  shadowfel_enabled = true,
+  doomfire_enabled = true,
   selfColor = {0, 0.78, 1.0, 0.5},
   inColor = {0.9, 0, 0.1, 0.5},
   outColor = {0, 0.8, 0.1, 0.5},
@@ -59,6 +61,34 @@ config = {
         width = "full",
         get = function() return db.mark_enabled end,
         set = function(_, v) db.mark_enabled = v end
+      }
+    }
+  },
+  doomfire={
+    type = "group",
+    name = "Doomfire",
+    args = {
+      enable = {
+        order = 1,
+        type = "toggle",
+        name = "Enable",
+        width = "full",
+        get = function() return db.doomfire_enabled end,
+        set = function(_, v) db.doomfire_enabled = v end
+      }
+    }
+  },
+  shadowfel={
+    type = "group",
+    name = "Shadowfel Burst",
+    args = {
+      enable = {
+        order = 1,
+        type = "toggle",
+        name = "Enable",
+        width = "full",
+        get = function() return db.shadowfel_enabled end,
+        set = function(_, v) db.shadowfel_enabled = v end
       }
     }
   },
@@ -159,7 +189,18 @@ if f == nil then
   end)
 end
 
+-- 1 - Star
+-- 2 - Circle
+-- 3 - Diamond
+-- 4 - Triangle
+-- 5 - Moon
+-- 6 - Square
+-- 7 - Cross
+-- 8 - Skull
+local MARK_TIMERS = {[5]=1,[7]=2, [9]=3, [11]=4}
+local RAID_TARGET_COLORS = {{1,1,0,0.5}, {1,0.5,0,0.5}, {0.75,0,1,0.5}, {0,0.75,0,0.5}, {0.5,0.6,0.75,0.5},{0,0.6,1,0.5},{1,0.2,0.1,0.5},{0.9,0.9,0.9,0.5}}
 local ENCOUNTER_ID = nil
+local DOOMFIRE = {}
 
 function f:ENCOUNTER_START (encounterID, encounterName, difficultyID, raidSize)
   ENCOUNTER_ID = encounterID
@@ -219,22 +260,46 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
         line:SetColor (unpack(db.defaultColor))
         root:SetColor (unpack(db.defaultColor))
       end
-    end
     elseif spell == 187050 and db.mark_enabled then
       key = destGUID .. "_mark"
-      if event == "SPELL_AURA_APP" then
+      if event == "SPELL_AURA_APPLIED" then
         Hud:RemovePoint(key)
         local duration = select(6, UnitDebuff(destName, spellName))
+        local idx = MARK_TIMERS[duration]
+
         local pt = Hud:CreateShadowPoint(destGUID, key)
         local timer = Hud:DrawTimer(pt, 10, duration)
-        timer:SetColor(unpack(db.defaultColor))
+        if idx then 
+          timer:SetColor(unpack(db.defaultColor))
+        else
+          timer:SetColor(unpack(RAID_TARGET_COLORS[idx]))
+        end
       end
+    elseif spell == 183586 and db.doomfire_enabled then
+      key = destGUID .. "_doomfire"
+      if event == "SPELL_AURA_APPLIED" then
+        Hud:RemovePoint(key)
+        local pt = Hud:CreateShadowPoint(destGUID, key)
+        local timer = Hud:DrawTimer(pt, 10, 12)
+        timer:SetColor(unpack(db.defaultColor))
+        DOOMFIRE[key] = timer
+      elseif event == "SPELL_AURA_APPLIED_DOSE" then
+        DOOMFIRE[key]:Reset(12)
+      end
+    elseif spell == 183598 and db.shadowfel_enabled then
+      key = destGUID .. "_shadowfel"
+      if event == "SPELL_AURA_APPLIED" then
+        Hud:RemovePoint(key)
+        local pt = Hud:CreateShadowPoint(destGUID, key)
+        local aera = Hud:DrawArea(pt, 8)
+        aera:SetColor(unpack(db.defaultColor))
+      end
+    end
     if event == "SPELL_AURA_REMOVED" and key then
         Hud:RemovePoint(key)
     end
   end
 end
-
 
 function reload()
   load("main.lua", true)
