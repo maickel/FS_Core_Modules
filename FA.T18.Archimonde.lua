@@ -197,8 +197,24 @@ end
 -- 6 - Square
 -- 7 - Cross
 -- 8 - Skull
-local MARK_TIMERS = {[5]=1,[7]=2, [9]=3, [11]=4}
-local RAID_TARGET_COLORS = {{1,1,0,0.5}, {1,0.5,0,0.5}, {0.75,0,1,0.5}, {0,0.75,0,0.5}, {0.5,0.6,0.75,0.5},{0,0.6,1,0.5},{1,0.2,0.1,0.5},{0.9,0.9,0.9,0.5}}
+
+local MARK_TIMERS = {
+  [5]=1,
+  [7]=2, 
+  [9]=3, 
+  [11]=4
+}
+local RAID_TARGET_COLORS = {
+  {1.0, 1.0, 0.0, 0.5}, 
+  {1.0, 0.5, 0.0, 0.5}, 
+  {0.7, 0.0, 1.0, 0.5}, 
+  {0.0, 0.7, 0.0, 0.5}, 
+  {0.5, 0.6, 0.7, 0.5},
+  {0.0, 0.6, 1.0, 0.5},
+  {1.0, 0.2, 0.1, 0.5},
+  {0.9, 0.9, 0.9, 0.5}
+}
+
 local ENCOUNTER_ID = nil
 local DOOMFIRE = {}
 
@@ -213,9 +229,12 @@ function f:ENCOUNTER_END (encounterID, encounterName, difficultyID, raidSize, en
 end
 
 function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, _, spell, spellName, ...)
-  if ENCOUNTER_ID == 1799 and sourceName and destName then
+  if ENCOUNTER_ID == 1799 then
     local key = nil
-    local own = UnitIsUnit("player", destName) or UnitIsUnit("player", sourceName)
+    local own = false
+    if sourceName and destName then
+      own = UnitIsUnit("player", destName) or UnitIsUnit("player", sourceName)
+    else
 
     if spell == 185014 and db.chaos_enabled then 
       key = sourceGUID .. "_chaos_ray"
@@ -286,7 +305,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
       elseif event == "SPELL_AURA_APPLIED_DOSE" then
         DOOMFIRE[key]:Reset(12)
       end
-    elseif spell == 183598 and db.shadowfel_enabled then
+    elseif spell == 183634 and db.shadowfel_enabled then
       key = destGUID .. "_shadowfel"
       if event == "SPELL_AURA_APPLIED" then
         Hud:RemovePoint(key)
