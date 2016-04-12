@@ -234,7 +234,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
     local own = false
     if sourceName and destName then
       own = UnitIsUnit("player", destName) or UnitIsUnit("player", sourceName)
-    else
+    end
 
     if spell == 185014 and db.chaos_enabled then 
       key = sourceGUID .. "_chaos_ray"
@@ -288,10 +288,10 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
 
         local pt = Hud:CreateShadowPoint(destGUID, key)
         local timer = Hud:DrawTimer(pt, 10, duration)
-        if idx then 
-          timer:SetColor(unpack(db.defaultColor))
-        else
+        if idx then
           timer:SetColor(unpack(RAID_TARGET_COLORS[idx]))
+        else
+          timer:SetColor(unpack(db.defaultColor))
         end
       end
     elseif spell == 183586 and db.doomfire_enabled then
