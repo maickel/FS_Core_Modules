@@ -1,4 +1,53 @@
-local Hud = FS.Hud
+local Hud   = FS.Hud
+local LSM   = LibStub:GetLibrary("LibSharedMedia-3.0")
+
+-------------------------------------------------------------------------------
+-- Hud Objects
+-------------------------------------------------------------------------------
+
+function DrawText(center, text, args)
+  local obj = Hud:CreateObject()
+
+  local default = {
+    font= "Friz Quadrata TT", 
+    size= 14, 
+    outline= "OUTLINE",
+    color={0.5,0.5,0.5,1.0},
+    offset={0,15},
+  }
+  
+  for k,v in pairs(default) do
+    if args[k] == nil then 
+      args[k] = v
+    end
+  end
+
+  center = obj:UsePoint(center)
+  if not center then return end
+  obj.frame:SetWidth (100)
+  obj.frame:SetHeight(100)
+  if not obj.frame.text then
+    obj.frame.text = obj.frame:CreateFontString(nil, "OVERLAY")
+  end
+  obj.frame.text:SetFont(LSM:Fetch("font", args.font), args.size, args.outline)
+  obj.frame.text:SetText(text)
+  obj.frame.text:SetTextColor(unpack(args.color))
+  obj.frame.text:SetPoint("CENTER", unpack(args.offset))
+  obj.frame.text:Show()
+
+  function obj:Update()
+    if self.OnUpdate then self:OnUpdate() end
+    obj.frame:SetPoint("CENTER", center.x, center.y)
+  end
+
+  function obj:SetText(...)
+    obj.frame.text:SetText(...)
+    return self
+  end
+   
+  return obj
+end
+
 -------------------------------------------------------------------------------
 -- Database
 -------------------------------------------------------------------------------
@@ -15,7 +64,10 @@ local default = {
   selfColor = {0, 0.78, 1.0, 0.5},
   inColor = {0.9, 0, 0.1, 0.5},
   outColor = {0, 0.8, 0.1, 0.5},
-  defaultColor = {1, 1, 1, 0.5}
+  defaultColor = {1, 1, 1, 0.5},
+  font = "PT Sans Narrow",
+  font_size = 14,
+  font_outline = "OUTLINE"
 }
 
 for k,v in pairs(default) do
@@ -28,6 +80,7 @@ config = {
   shackled={
     type = "group",
     name = "Shackled Torment",
+    order = 4,
     args = {
       enable = {
         order = 1,
@@ -53,6 +106,7 @@ config = {
   mark={
     type = "group",
     name = "Mark of the Legion",
+    order = 5,
     args = {
       enable = {
         order = 1,
@@ -67,6 +121,7 @@ config = {
   doomfire={
     type = "group",
     name = "Doomfire",
+    order = 6,
     args = {
       enable = {
         order = 1,
@@ -81,6 +136,7 @@ config = {
   shadowfel={
     type = "group",
     name = "Shadowfel Burst",
+    order = 7,
     args = {
       enable = {
         order = 1,
@@ -95,6 +151,7 @@ config = {
   chaos={
     type = "group",
     name = "Focused Chaos",
+    order = 3,
     args = {
       enable = {
         order = 1,
@@ -131,6 +188,7 @@ config = {
   colors = {
     type = "group",
     name = "Colors",
+    order = 1,
     args = {
       selfColor = {
         order = 1,
@@ -171,6 +229,47 @@ config = {
         set = function(_, ...)
           db.outColor = ...
         end
+      }
+    }
+  },
+  font = {
+    type = "group",
+    name = "Font",
+    order = 2,
+    args = {
+      font = {
+        order = 1,
+        type = "select",
+        dialogControl = "LSM30_Font",
+        name = "Font",
+        desc = "Set the font",
+        values = LSM:HashTable("font"),
+        get = function() return db.font end,
+        set = function(_,v) db.font = v end,
+      },
+      size = {
+        order = 2,
+        name = "Font Size",
+        type = "range",
+        min = 6, 
+        max = 48, 
+        step = 1,
+        get = function() return db.font_size end,
+        set = function(_, v) db.font_size = v end
+      },
+      outline = {
+        order = 3,
+        name = "Font Outline",
+        desc = "Set the font outline.",
+        type = "select",
+        values = {
+          ["NONE"] = "None",
+          ["OUTLINE"] = "OUTLINE",
+          ["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
+          ["THICKOUTLINE"] = "THICKOUTLINE",
+        },
+        get = function() return db.font_outline end,
+        set = function(_, v) db.font_outline = v end
       }
     }
   }
@@ -214,12 +313,19 @@ local RAID_TARGET_COLORS = {
   {1.0, 0.2, 0.1, 0.5},
   {0.9, 0.9, 0.9, 0.5}
 }
-
-local ENCOUNTER_ID = nil
-local DOOMFIRE = {}
+local TEXT_ARGS     = {}
+local ENCOUNTER_ID  = nil
+local DOOMFIRE      = {}
 
 function f:ENCOUNTER_START (encounterID, encounterName, difficultyID, raidSize)
   ENCOUNTER_ID = encounterID
+  TEXT_ARGS     = {
+    font    = db.font, 
+    size    = db.font_size, 
+    outline = db.font_outline,
+    color   = db.defaultColor,
+    offset  = {0,15},
+  }
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 end
 
@@ -293,6 +399,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
         else
           timer:SetColor(unpack(db.defaultColor))
         end
+        local text = DrawText(pt, destName, TEXT_ARGS)
       end
     elseif spell == 183586 and db.doomfire_enabled then
       key = destGUID .. "_doomfire"
@@ -312,6 +419,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
         local pt = Hud:CreateShadowPoint(destGUID, key)
         local aera = Hud:DrawArea(pt, 8)
         aera:SetColor(unpack(db.defaultColor))
+        local text = DrawText(pt, destName, TEXT_ARGS)
       end
     end
     if event == "SPELL_AURA_REMOVED" and key then
