@@ -369,8 +369,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED (_, event, _, sourceGUID, sourceName, sou
       key = destGUID .. "_shackled"
       if event == "SPELL_AURA_APPLIED" then
         Hud:RemovePoint(key)
-        local x, y = UnitPosition(destName)
-        local root = Hud:CreateStaticPoint(x, y, key)
+        local root = Hud:CreateSnapshotPoint (destGUID, key)
         local aera = Hud:DrawArea(root, 25)
         function aera:OnUpdate()
             if own then
