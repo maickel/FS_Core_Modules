@@ -15,7 +15,7 @@ function mod:OnEngage ( id , name , difficulty , size )
     mod:CombatLog("SPELL_AURA_APPLIED", k, v)
     mod:CombatLog("SPELL_AURA_REMOVED", "Removed", v)
   end
-  
+
 end
 
 function mod:FocusedChaos ( _, _, args )
@@ -34,7 +34,7 @@ function mod:FocusedChaos ( _, _, args )
       return x + vx, y + vy
   end
   local line = Hud:DrawLine(sourceGUID, pt, db.ray_width)
-  
+
   function line:OnUpdate()
       if own then
           self:SetColor(unpack(db.selfColor))
@@ -48,27 +48,22 @@ function mod:FocusedChaos ( _, _, args )
 end
 
 function mod:ShackledTorment ( _, _, args )
-  
+
 end
 
 function mod:MarkLegion ( _, _, args )
-  
+
 end
 
 function mod:Doomfire ( _, _, args )
-  
+
 end
 
 function mod:Shadowfel ( _, _, args )
-  
+
 end
 
 function mod:Removed ( _, _, args )
   local key = args.destGUID .. args.spellId
   Hud:RemovePoint(key)
-end
-
-
-function reload()
-  load("main.lua", true)
 end
