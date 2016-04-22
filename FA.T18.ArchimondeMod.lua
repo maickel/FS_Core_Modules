@@ -3,6 +3,14 @@ local Encounters    = FS.Encounters
 
 local mod = Encounters:RegisterEncounter("Archimonde", 1799)
 
+local o = mod:Options(_P) {
+  FocusedChaos    = mod:opt { 185014 },
+  ShackledTorment = mod:opt { 184964 },
+  MarkLegion      = mod:opt { 187050 },
+  Doomfire        = mod:opt { 183586 },
+  Shadowfel       = mod:opt { 183634 }
+}
+
 function mod:OnEngage ( id , name , difficulty , size )
   local spells = {
     FocusedChaos    = 185014,
@@ -12,8 +20,10 @@ function mod:OnEngage ( id , name , difficulty , size )
     Shadowfel       = 183634,
   }
   for k, v in pairs(spells) do
-    mod:CombatLog("SPELL_AURA_APPLIED", k, v)
-    mod:CombatLog("SPELL_AURA_REMOVED", "Removed", v)
+    if o[k] then
+      mod:CombatLog("SPELL_AURA_APPLIED", k, v)
+      mod:CombatLog("SPELL_AURA_REMOVED", "Removed", v)
+    end
   end
 
 end
