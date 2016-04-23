@@ -42,24 +42,13 @@ local MARK_TIMERS = {
   [11]  = 4
 }
 
-local RAID_TARGET_COLORS = {
-  {1.0, 1.0, 0.0, 0.5}, 
-  {1.0, 0.5, 0.0, 0.5}, 
-  {0.7, 0.0, 1.0, 0.5}, 
-  {0.0, 0.7, 0.0, 0.5}, 
-  {0.5, 0.6, 0.7, 0.5},
-  {0.0, 0.6, 1.0, 0.5},
-  {1.0, 0.2, 0.1, 0.5},
-  {0.9, 0.9, 0.9, 0.5}
-}
-
 local DOOMFIRE      = {}
 
 local TEXT_ARGS     = {
     font    = SETTINGS.font, 
     size    = SETTINGS.font_size, 
     outline = SETTINGS.font_outline,
-    offset  = {0,15},
+    offset  = {0,15}
   }
 -------------------------------------------------------------------------------
 -- MODULE
@@ -82,7 +71,10 @@ function mod:OnEngage ( id , name , difficulty , size )
       mod:CombatLog("SPELL_AURA_REMOVED", "Removed", v)
     end
   end
-  mod:CombatLog("SPELL_AURA_APPLIED_DOSE", "DoomfireDose", 183586)
+  -- DRY ...
+  if OPTIONS["Doomfire"] then
+    mod:CombatLog("SPELL_AURA_APPLIED_DOSE", "DoomfireDose", 183586)
+  end
 end
 
 function mod:FocusedChaos ( _, _, args )
@@ -138,8 +130,9 @@ function mod:MarkLegion ( _, _, args )
 
   local pt = Hud:CreateShadowPoint(args.destGUID, key)
   local timer = Hud:DrawTimer(pt, 10, duration)
+
   if idx then
-    timer:SetColor(unpack(RAID_TARGET_COLORS[idx]))
+    timer:SetMarkerColor(idx, 0.5)
   else
     timer:SetColor(unpack(SETTINGS.defaultColor))
   end
