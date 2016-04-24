@@ -11,6 +11,9 @@ local SETTINGS = {
   inColor         = {0.9, 0, 0.1, 0.5},
   outColor        = {0, 0.8, 0.1, 0.5},
   defaultColor    = {1, 1, 1, 0.5},
+  font            = LSM:Fetch("font", "PT Sans Narrow"),
+  font_outline    = "OUTLINE",
+  font_size       = 14
 }
 
 -------------------------------------------------------------------------------
