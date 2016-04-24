@@ -82,14 +82,14 @@ function mod:FocusedChaos ( _, _, args )
   local key = args.destGUID .. args.spellId
   Hud:RemovePoint(key)
 
-  local pt = Hud:CreateShadowPoint(destGUID, key)
+  local pt = Hud:CreateShadowPoint(args.destGUID, key)
 
   function pt:Position()
       local vx, vy = Hud:Vector(args.sourceGUID, args.destGUID, SETTINGS.overrun)
       local x, y = self.ref:Position()
       return x + vx, y + vy
   end
-  local line = Hud:DrawLine(sourceGUID, pt, SETTINGS.ray_width)
+  local line = Hud:DrawLine(args.sourceGUID, pt, SETTINGS.ray_width)
 
   function line:OnUpdate()
       if own then
