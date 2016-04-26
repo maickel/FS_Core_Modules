@@ -49,7 +49,7 @@ local TEXT_ARGS     = {
     size    = SETTINGS.font_size, 
     outline = SETTINGS.font_outline,
     offset  = {0,15}
-  }
+}
 -------------------------------------------------------------------------------
 -- MODULE
 -------------------------------------------------------------------------------
@@ -155,7 +155,9 @@ end
 
 function mod:DoomfireDose ( _, _, args )
   local key = args.destGUID .. args.spellId
-  DOOMFIRE[key]:Reset(12)
+  if DOOMFIRE[key] then 
+    DOOMFIRE[key]:Reset(12)
+  end
 end
 
 function mod:Shadowfel ( _, _, args )
