@@ -105,7 +105,7 @@ function mod:Gaze ( _, _, args )
 end
 
 function mod:EmpoweredGaze ( _, _, args )
-  EmpoweredGaze (args)
+  Gaze (args)
 end
 
 function mod:MarkOfDoom ( _, _, args )
