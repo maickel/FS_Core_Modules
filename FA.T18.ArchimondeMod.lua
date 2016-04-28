@@ -2,7 +2,7 @@ local Hud           = FS.Hud
 local Encounters    = FS.Encounters
 local LSM           = LibStub:GetLibrary("LibSharedMedia-3.0")
 
-print("|cfffff569Archimonde Module : Loaded")
+print("|cff64b4ffArchimonde Module : |cff999999Loaded")
 -------------------------------------------------------------------------------
 -- SETTINGS
 -------------------------------------------------------------------------------
@@ -57,7 +57,15 @@ local TEXT_ARGS     = {
 
 local mod = Encounters:RegisterEncounter("Archimonde", 1799)
 
+local SPELLS = {
+  FocusedChaos    = 185014 ,
+  ShackledTorment = 184964 ,
+  MarkLegion      = 187050 ,
+  Doomfire        = 183586 ,
+  Shadowfel       = 183634 
+}
 local OPTIONS = mod:Options(_P) {
+
   FocusedChaos    = mod:opt { 185014 },
   ShackledTorment = mod:opt { 184964 },
   MarkLegion      = mod:opt { 187050 },
@@ -68,9 +76,8 @@ local OPTIONS = mod:Options(_P) {
 function mod:OnEngage ( id , name , difficulty , size )
   for k, v in pairs(OPTIONS) do
     if OPTIONS[k] then
-      print (k)
-      mod:CombatLog("SPELL_AURA_APPLIED", k, v)
-      mod:CombatLog("SPELL_AURA_REMOVED", "Removed", v)
+      mod:CombatLog("SPELL_AURA_APPLIED", k, SPELLS[k])
+      mod:CombatLog("SPELL_AURA_REMOVED", "Removed", SPELLS[k])
     end
   end
   -- DRY ...
