@@ -90,9 +90,10 @@ function mod:FocusedChaos ( _, _, args )
   local own = IsPlayer (args)
   Hud:RemovePoint(args.destKey)
   local pt = Hud:CreateShadowPoint(args.destGUID, args.destKey)
-  
+  local sourceGUID  = args.sourceGUID
+  local destGUID    = args.destGUID
   function pt:Position()
-    local vx, vy = Hud:Vector(args.sourceGUID, args.destGUID, SETTINGS.overrun)
+    local vx, vy = Hud:Vector(sourceGUID, destGUID, SETTINGS.overrun)
     local x, y = self.ref:Position()
     return x + vx, y + vy
   end

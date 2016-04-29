@@ -2,6 +2,7 @@ local Hud           = FS.Hud
 local Encounters    = FS.Encounters
 local LSM           = LibStub:GetLibrary("LibSharedMedia-3.0")
 
+print("|cff64b4ffMannoroth Module : |cff999999Loaded")
 -------------------------------------------------------------------------------
 -- SETTINGS
 -------------------------------------------------------------------------------
@@ -39,6 +40,14 @@ local TEXT_ARGS     = {
 
 local mod = Encounters:RegisterEncounter("Mannoroth", 1795)
 
+local SPELLS = {
+  MarkOfDoom        = 181099 ,
+  Gaze              = 181597 ,
+  EmpoweredGaze     = 182006 ,
+  DoomSpike         = 189717 ,
+  Wrath             = 186362 
+}
+
 local OPTIONS = mod:Options(_P) {
   MarkOfDoom        = mod:opt { 181099 },
   Gaze              = mod:opt { 181597 },
@@ -50,8 +59,8 @@ local OPTIONS = mod:Options(_P) {
 function mod:OnEngage ( id , name , difficulty , size )
   for k, v in pairs(OPTIONS) do
     if OPTIONS[k] then
-      mod:CombatLog("SPELL_AURA_APPLIED", k, v)
-      mod:CombatLog("SPELL_AURA_REMOVED", "Removed", v)
+      mod:CombatLog("SPELL_AURA_APPLIED", k, SPELLS[k])
+      mod:CombatLog("SPELL_AURA_REMOVED", "Removed", SPELLS[k])
     end
   end
   -- DRY ...
